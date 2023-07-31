@@ -1,26 +1,26 @@
 spring:
   servlet:
     multipart:
-      max-file-size: 1000MB
-      max-request-size: 1000MB
+      max-file-size: 50MB
+      max-request-size: 50MB
   server:
-    max-http-header-size: 1000MB
+    max-http-header-size: 50MB
   tomcat:
     max-swallow-size: -1
-    max-post-size: 1000MB
+    max-post-size: 50MB
 
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/upgrade_education
-    username: postgres
-    password: root123
+    url: jdbc:postgresql://ec2-34-250-252-161.eu-west-1.compute.amazonaws.com:5432/d8qcq9fgj2b91
+    username: zpbkkdzejfjfnm
+    password: 3b2fee94feab89d771c7ebf58053a633784f1512217a8544ccbcab1d03898018
     driver-class-name: org.postgresql.Driver
 
     main:
       web-application-type: none
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
