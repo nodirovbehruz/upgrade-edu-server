@@ -1,6 +1,7 @@
 package com.alibou.demo;
 
 
+import com.alibou.auth.RegisterRequest;
 import com.alibou.service.UserService;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +28,10 @@ public class AdminController {
     @PostMapping("/set/user/{id}")
     public ResponseEntity<?> setUser(@PathVariable Integer id) {
         return ResponseEntity.ok(userService.pay(id));
+    }
+    @PostMapping("/add/user")
+    public ResponseEntity<?> setUser(@RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(userService.addUser(request));
     }
 
 }

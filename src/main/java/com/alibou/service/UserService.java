@@ -1,12 +1,16 @@
 package com.alibou.service;
 
 
+
+import com.alibou.auth.RegisterRequest;
+import com.alibou.config.JwtService;
 import com.alibou.demo.FileService;
 import com.alibou.entities.Attachment;
 import com.alibou.entities.Enums.Role;
 import com.alibou.entities.User;
 import com.alibou.payload.*;
 import com.alibou.repository.AttachmentRepository;
+import com.alibou.repository.TokenRepository;
 import com.alibou.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -32,8 +36,9 @@ public class UserService {
     private final JavaMailSender javaMailSender;
     private final FileService fileService;
     final AttachmentRepository attachmentRepository;
+    final TokenRepository tokenRepository;
     public static final Path root = Paths.get(System.getProperty("user.dir"), "files");
-
+    final JwtService jwtService;
     public ApiResponse profile(User user) {
         Optional<User> byId = userRepository.findById(user.getId());
         if (byId.isPresent()) {
@@ -42,6 +47,7 @@ public class UserService {
             userRes.setLastname(user.getLastname());
             userRes.setPhoneNumber(user.getPhoneNumber());
             userRes.setFirstname(user.getFirstname());
+            userRes.setDateOfBirth(user.getDateOfBirth().toString());
             if (user.getAttachment() != null) {
                 userRes.setAttachmentId(user.getAttachment().getId());
             }
@@ -84,8 +90,31 @@ public class UserService {
             return new ApiResponse("Пользователь не найден", true);
         }
     }
+    public ApiResponse getIconMenu(){
+        Optional<User> byId = userRepository.findById(1);
+        UUID id = byId.get().getAttachment().getId();
+        return new ApiResponse(true,id);
 
-
+    }
+    public ApiResponse addUser(RegisterRequest request) {
+        boolean phoneNumber = userRepository.existsByPhoneNumber(request.getPhoneNumber());
+        boolean email = userRepository.existsByEmail(request.getEmail());
+        if (!phoneNumber && ! email) {
+            var user = User.builder()
+                    .firstname(request.getFirstname())
+                    .lastname(request.getLastname())
+                    .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(request.getRole())
+                    .dateOfBirth(request.getDateOfBirth())
+                    .enabled(true)
+                    .build();
+            userRepository.save(user);
+            return new ApiResponse("Пользователь добавился",true);
+        }
+        return new ApiResponse("Пользователь с такой почтой или же с таким номером уже существует",false);
+    }
     public ApiResponse forgotMyPassword(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceAccessException("User not found"));

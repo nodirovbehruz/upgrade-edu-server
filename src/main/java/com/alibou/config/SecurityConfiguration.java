@@ -66,7 +66,8 @@ public class SecurityConfiguration {
                         "/api/v2/user/forgot/**",
                         "/api/user/forgot/password",
                         "/api/user/forgot/verify",
-                        "/api/user/send/again"
+                        "/api/user/send/again",
+                        "/api/user/get/icon"
                 )
                 .permitAll()
                 .anyRequest()

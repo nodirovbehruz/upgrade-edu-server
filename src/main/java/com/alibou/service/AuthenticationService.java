@@ -12,6 +12,7 @@ import com.alibou.token.TokenType;
 import com.alibou.entities.User;
 import com.alibou.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.mail.SimpleMailMessage;
@@ -88,7 +89,7 @@ public class AuthenticationService {
 
     }
 
-
+    @Transactional
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         User user = repository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceAccessException("User not found"));
@@ -100,7 +101,7 @@ public class AuthenticationService {
                     )
             );
             var jwtToken = jwtService.generateToken(user);
-            revokeAllUserTokens(user);
+            tokenRepository.deleteByUserId(user.getId());
             saveUserToken(user, jwtToken);
             return AuthenticationResponse.builder()
                     .token(jwtToken)
@@ -123,16 +124,6 @@ public class AuthenticationService {
     }
 
 
-    private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
-    }
 
 
     public ApiResponse verify(EmailVerifyPasswordReq emailVerifyPasswordReq) {
@@ -177,8 +168,6 @@ public class AuthenticationService {
 
         return new ApiResponse("Повторная отправка кода верификации на почту", true);
     }
-
-
 
 
     public int generateRandom(int integerLength) {

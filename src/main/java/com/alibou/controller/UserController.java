@@ -58,7 +58,10 @@ public class UserController {
     public ResponseEntity<?> updateUserInfo(@CurrentUser User user ,@RequestBody RegisterRequest request){
         return ResponseEntity.ok(userService.updateUserInfo(user.getId(),request.getFirstname(), request.getLastname(), request.getPhoneNumber(), request.getDateOfBirth()));
     }
-
+    @GetMapping("/get/icon")
+    public ResponseEntity<?> getIcon() {
+        return ResponseEntity.ok(userService.getIconMenu());
+    }
 
 }
 
